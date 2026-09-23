@@ -1,0 +1,87 @@
+name: Build CloudStream Plugin
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "*.md"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cloudstream-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10"
+
+      - name: Build plugins
+        run: |
+          gradle make makePluginsJson ensureJarCompatibility --no-daemon
+
+      - name: Collect build output
+        run: |
+          set -eux
+          rm -rf /tmp/cloudstream-builds
+          mkdir -p /tmp/cloudstream-builds
+          cp repo.json /tmp/cloudstream-builds/repo.json
+          cp build/plugins.json /tmp/cloudstream-builds/plugins.json
+          find . -path "*/build/*.cs3" -type f -exec cp {} /tmp/cloudstream-builds/ \;
+          find . -path "*/build/*.jar" -type f -exec cp {} /tmp/cloudstream-builds/ \;
+          ls -lah /tmp/cloudstream-builds
+
+      - name: Publish builds branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eux
+
+          rm -rf /tmp/publish
+          mkdir -p /tmp/publish
+          cp /tmp/cloudstream-builds/* /tmp/publish/
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin builds || true
+
+          if git show-ref --verify --quiet refs/remotes/origin/builds; then
+            git worktree add --detach /tmp/builds origin/builds
+            cd /tmp/builds
+            git rm -rf . || true
+          else
+            mkdir -p /tmp/builds
+            cd /tmp/builds
+            git init
+            git checkout --orphan builds
+            git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          fi
+
+          cp /tmp/publish/* .
+          git add .
+          git commit -m "Build ${GITHUB_SHA}" || true
+          git push origin HEAD:builds --force
