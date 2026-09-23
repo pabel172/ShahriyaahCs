@@ -1,0 +1,8 @@
+{
+  "name": "ShahriyaahCs",
+  "description": "CloudStream extensions by ShahriyaahCs",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/ShahriyaahCs/ShahriyaahCs/builds/plugins.json"
+  ]
+}
