@@ -1,40 +1,50 @@
-# ShahriyaahCs — CircleFTP CloudStream Repository
+# BDIX Bangladesh CloudStream Repo
 
-CloudStream 3 extension repository containing the CircleFTP provider.
+A public CloudStream 3 repository focused only on Bangladeshi and BDIX-reachable sources. This project intentionally excludes international or non-BDIX providers so that the repo stays aligned with Bangladeshi ISP accessibility and local sharing use cases.
 
-## Repository manifest
+## What this repo is
 
-After the first successful GitHub Actions build:
+This repo is a lightweight CloudStream 3 plugin repository for Bangladeshi-friendly sources. It is meant for people who want to install a clean, focused catalog of providers that are reachable from Bangladesh and typically available over BDIX or similar local-access paths.
 
-`https://raw.githubusercontent.com/ShahriyaahCs/ShahriyaahCs/builds/repo.json`
+## Install in CloudStream
 
-CloudStream's documentation specifies that a repository manifest contains `name`, `description`, `manifestVersion`, and direct `pluginLists` URLs. citeturn0search0
+1. Open CloudStream 3.
+2. Go to Settings -> Extensions / Repository.
+3. Add a new repository with this URL:
 
-## Build
+   https://raw.githubusercontent.com/pabel172/ShahriyaahCs/main/repo.json
 
-GitHub Actions builds the extension automatically on pushes to `main`.
+4. Refresh repositories and install the available plugin(s).
 
-For a local build:
+## Repository structure
+
+- `repo.json` — the repository manifest CloudStream reads.
+- `plugins.json` — plugin list for the repository.
+- `CircleFTP/` — existing CloudStream provider module.
+- `BdixBangla/` — BDIX-focused provider module template and source catalog entry.
+
+## Supported scope
+
+The repo is intentionally limited to:
+
+- Bangladeshi-accessible providers
+- BDIX-friendly or locally reachable sources
+- Sources compatible with CloudStream 3 in the Bangladesh ecosystem
+
+It does not include unrelated international providers or non-BDIX-only catalogs.
+
+## Local build
+
+From the project root:
 
 ```bash
-gradle make makePluginsJson ensureJarCompatibility
+./gradlew make makePluginsJson ensureJarCompatibility
 ```
 
-The official CloudStream extension repository uses JDK 17, Android SDK setup, the CloudStream Gradle plugin, and the `make makePluginsJson` build flow. citeturn0search3turn0search2
-
-## Features
-
-- CircleFTP movie search
-- CircleFTP TV-series search
-- Movie playback
-- Episode playback
-- Basic season/episode parsing
-- Quality detection
-- Generated `plugins.json`
-- Automatic `builds` branch publishing
+If you are using the CloudStream extension setup directly, the Gradle project is already structured for the standard CloudStream plugin build flow.
 
 ## Notes
 
-CircleFTP's API can change or be reachable only from particular networks. If the provider stops returning results, the API implementation in `CircleFTPProvider.kt` may need updating.
-
-Use the extension only where access and playback of the underlying content are lawful.
+- Keep the repo focused on legally reachable and region-appropriate sources only.
+- Do not mix in global services that are not accessible from Bangladeshi networks.
+- This repo is intended as a clean public catalog for BDIX-oriented Bangladeshi sources.
